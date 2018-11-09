@@ -29,26 +29,37 @@ def main(input_file=None, output_file=None, corpus_type='snli', data_format='', 
 
     Parameters
     ----------
+
     input_file : str, optional
         输入文件 (default: None, 输入自 stdin
+
     output_file : str, optional
         输出文件 (default: None, 输出到 stdout)
+
     corpus_type : str, optional
         语料格式 "snli" | "xnli" (default: 'snli')
+
     data_format : str, optional
         文本格式 "jsonl" | "tsv" (default: '', 根据文件名后缀判断)
+
     max_workers : [type], optional
         最大工作进程 (default: None, 根据 CPU 自动分配)
+
     max_retry : int, optional
         单条语料的翻译失败最大重试次数 (default 0, 不重试)
+
     min_retry_sleep : int, optional
         单条语料的翻译失败重试最小休眠时间(秒) (default: 1)
+
     max_retry_sleep : int, optional
         单条语料的翻译失败重试最大休眠时间(秒) (default: 10)
+
     flush : bool, optional
         输出结果行时是否写缓冲 (default: True)
+
     appkey : str, optional
         有道翻译 APP Key (default: None, 使用环境变量 YOUDAO_FANYI_APP_KEY)
+
     appsecret : str, optional
         [description] (default: None, 使用环境变量 YOUDAO_FANYI_APP_SECRET)
     """
@@ -148,10 +159,7 @@ def main(input_file=None, output_file=None, corpus_type='snli', data_format='', 
 
         if output_file:
             with lock:
-                f_out.write(result)
-                f_out.write(os.linesep)
-                if flush:
-                    f_out.flush()
+                print(result, file=output_file, flush=flush)
         else:
             tqdm.write(result)
 
@@ -164,7 +172,7 @@ def main(input_file=None, output_file=None, corpus_type='snli', data_format='', 
             ):
                 pass
         except KeyboardInterrupt:
-            pass
+            tqdm.write(f'正在停止...', file=sys.stderr)
 
 
 if __name__ == '__main__':

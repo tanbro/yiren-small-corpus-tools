@@ -43,18 +43,25 @@ def main(input_file=None, output_file=None, corpus_type='snli', data_format='', 
 
     Parameters
     ----------
+
     input_file : str, optional
         输入文件 (default: None, 输入自 stdin
+
     output_file : str, optional
         输出文件 (default: None, 输出到 stdout)
+
     corpus_type : str, optional
         语料格式 "snli" | "xnli" (default: 'snli')
+
     data_format : str, optional
         文本格式 "jsonl" | "tsv" (default: '', 根据文件名后缀判断)
+
     max_workers : [type], optional
         最大工作进程 (default: None, 根据 CPU 自动分配)
+
     flush : bool, optional
         输出结果行时是否写缓冲 (default: True)
+
     url : str, optional
         CoreNLP Web 服务器的 URL (default： 'http://localhost:9000')
     """
@@ -139,10 +146,7 @@ def main(input_file=None, output_file=None, corpus_type='snli', data_format='', 
 
         if output_file:
             with lock:
-                f_out.write(result)
-                f_out.write(os.linesep)
-                if flush:
-                    f_out.flush()
+                print(result, file=output_file, flush=flush)
         else:
             tqdm.write(result)
 
@@ -155,7 +159,7 @@ def main(input_file=None, output_file=None, corpus_type='snli', data_format='', 
             ):
                 pass
         except KeyboardInterrupt:
-            pass
+            tqdm.write(f'正在停止...', file=sys.stderr)
 
 
 if __name__ == '__main__':
