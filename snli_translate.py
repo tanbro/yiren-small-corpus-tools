@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 from envs import env
 from tqdm import tqdm
 
-from youdao_translate import translate, TranslateError
+from youdao_translate import TranslateError, translate
 
 
 def main(input_file=None, output_file=None, corpus_type='snli', data_format='', max_workers=None, max_retry=0, min_retry_sleep=1, max_retry_sleep=10, flush=True, appkey=None, appsecret=None):

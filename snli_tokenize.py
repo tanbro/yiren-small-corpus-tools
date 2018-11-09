@@ -20,9 +20,8 @@ import fire
 import requests
 from dotenv import load_dotenv
 from envs import env
-from tqdm import tqdm
 from nltk.parse.corenlp import CoreNLPParser
-
+from tqdm import tqdm
 
 CJK_WHITESPACE_REGEX = re.compile(r'(?P<c>[\u2E80-\u9FFF])(\s+)')
 

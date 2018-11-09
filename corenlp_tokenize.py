@@ -7,10 +7,9 @@ import requests
 from nltk.parse.corenlp import CoreNLPParser
 
 
-
 def tokenize(text, url='http://localhost:9000'):
     """CoreNLP 分词
-    
+
     Parameters
     ----------
     text : str

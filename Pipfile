@@ -11,6 +11,7 @@ python-dotenv = "*"
 requests = "*"
 tqdm = "*"
 nltk = "*"
+scikit-learn = "*"
 
 [dev-packages]
 "autopep8" = "*"
