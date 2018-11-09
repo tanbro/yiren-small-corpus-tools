@@ -164,7 +164,7 @@ def main(input_file=None, output_file=None, corpus_type='snli', data_format='', 
             ):
                 pass
         except KeyboardInterrupt:
-            executor.shutdown()
+            pass
 
 
 if __name__ == '__main__':
