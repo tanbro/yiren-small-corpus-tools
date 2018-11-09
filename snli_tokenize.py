@@ -146,7 +146,7 @@ def main(input_file=None, output_file=None, corpus_type='snli', data_format='', 
 
         if output_file:
             with lock:
-                print(result, file=output_file, flush=flush)
+                print(result, file=f_out, flush=flush)
         else:
             tqdm.write(result)
 
