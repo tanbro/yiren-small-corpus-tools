@@ -45,7 +45,7 @@ def main(input_file=None, output_file=None, corpus_type='snli', data_format='', 
     ----------
 
     input_file : str, optional
-        输入文件 (default: None, 输入自 stdin
+        输入文件 (default: None, 输入自 stdin)
 
     output_file : str, optional
         输出文件 (default: None, 输出到 stdout)
