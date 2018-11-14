@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-使用 CoreNLP 令牌化 SNLI/XNLI 语料
+使用 CoreNLP 或者 LTP 对 SNLI/XNLI 中文语料进行分词处理
 """
 
 import argparse
@@ -15,6 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 from random import random
 from threading import Lock
 from time import sleep
+from urllib.parse import urlsplit, urlunsplit
 
 import fire
 import requests
@@ -38,7 +39,9 @@ def remove_cjk_whitespace(s):  # type: (str)->str
     return re.sub(CJK_WHITESPACE_REGEX, r'\g<c>', s.strip())
 
 
-def main(input_file=None, output_file=None, corpus_type='snli', data_format='', max_workers=None, flush=True, url='http://localhost:9000'):
+def main(input_file='', output_file='', corpus_type='snli', data_format='',
+         max_workers=None, flush=True,
+         cornlp='', ltp=''):
     """使用 CoreNLP 令牌化 SNLI/XNLI 语料，并输出 SNLI 格式的 JSONL 语料
 
     Parameters
@@ -56,15 +59,44 @@ def main(input_file=None, output_file=None, corpus_type='snli', data_format='', 
     data_format : str, optional
         文本格式 "jsonl" | "tsv" (default: '', 根据文件名后缀判断)
 
-    max_workers : [type], optional
+    max_workers : int, optional
         最大工作进程 (default: None, 根据 CPU 自动分配)
 
     flush : bool, optional
         输出结果行时是否写缓冲 (default: True)
 
-    url : str, optional
-        CoreNLP Web 服务器的 URL (default： 'http://localhost:9000')
+    cornlp : str, optional
+        CoreNLP Web 服务器的 <地址>[:端口]. cornlp 或者 ltp 必须提供其中一个。
+
+    ltp : str, optional
+        LTP Web 服务器的 <地址>[:端口]. cornlp 或者 ltp 必须提供其中一个。
+
     """
+
+    if (not cornlp and not ltp) or (cornlp and ltp):
+        print('启动参数错误: cornlp 或者 ltp 必须提供其中一个', file=sys.stderr)
+        sys.exit(1)
+    if cornlp:
+        cornlp = cornlp.strip().strip('/')
+    if ltp:
+        ltp = ltp.strip().strip('/')
+        split_result = urlsplit(ltp, scheme='http', allow_fragments=False)
+        if split_result.scheme != 'http':
+            print(f'不支持的 URL: {ltp!r}', file=sys.stderr)
+            sys.exit(1)
+        if split_result.netloc:
+            ltp_netloc = split_result.netloc
+        else:
+            ltp_netloc = split_result.path
+        if not ':' in ltp_netloc:
+            ltp_netloc += ':12345'
+        ltp = urlunsplit([
+            split_result.scheme,  # scheme	0	URL scheme specifier	scheme parameter
+            ltp_netloc,  # netloc	1	Network location part	empty string
+            '/ltp',  # path	2	Hierarchical path	empty string
+            '',  # query	3	Query component	empty string
+            '',  # fragment	4	Fragment identifier	empty string
+        ])
 
     lines = 0
     if input_file:  # 文本文件
@@ -131,17 +163,33 @@ def main(input_file=None, output_file=None, corpus_type='snli', data_format='', 
         sent1 = remove_cjk_whitespace(sent1)
         sent2 = remove_cjk_whitespace(sent2)
 
-        tokenzed = []
-        parser = CoreNLPParser(url)
-        for sent in (sent1, sent2):
-            tokens = list(parser.tokenize(sent))
-            tokenzed.append(' '.join(tokens))
+        segments = []
+        if cornlp:
+            parser = CoreNLPParser(cornlp)
+            for sent in (sent1, sent2):
+                tokens = list(parser.tokenize(sent))
+                segments.append(' '.join(tokens))
+        elif ltp:
+            for sent in (sent1, sent2):
+                tokens = []
+                r = requests.post(
+                    ltp,
+                    data={'s': sent, 'x': 'n', 't': 'ws'}
+                )
+                r.raise_for_status()
+                ltp_result = r.json()
+                for ltp_sent in ltp_result[0]:
+                    for ltp_w in ltp_sent:
+                        ws = ltp_w['cont'].strip()
+                        if ws:
+                            tokens.append(ws)
+                segments.append(' '.join(tokens))
 
         result = json.dumps({
             'index': index,
             'gold_label': label,
-            'sentence1': tokenzed[0],
-            'sentence2': tokenzed[1],
+            'sentence1': segments[0],
+            'sentence2': segments[1],
         }, ensure_ascii=False)
 
         if output_file:
