@@ -70,7 +70,6 @@ def main(input_file='', output_file='', corpus_type='snli', data_format='',
 
     ltp : str, optional
         LTP Web 服务器的 <地址>[:端口]. cornlp 或者 ltp 必须提供其中一个。
-
     """
 
     if (not cornlp and not ltp) or (cornlp and ltp):
@@ -78,6 +77,23 @@ def main(input_file='', output_file='', corpus_type='snli', data_format='',
         sys.exit(1)
     if cornlp:
         cornlp = cornlp.strip().strip('/')
+        split_result = urlsplit(cornlp, scheme='http', allow_fragments=False)
+        if split_result.scheme != 'http':
+            print(f'不支持的 URL: {cornlp!r}', file=sys.stderr)
+            sys.exit(1)
+        if split_result.netloc:
+            cornlp_netloc = split_result.netloc
+        else:
+            cornlp_netloc = split_result.path
+        if not ':' in cornlp_netloc:
+            cornlp_netloc += ':9000'
+        cornlp = urlunsplit([
+            split_result.scheme,  # scheme	0	URL scheme specifier	scheme parameter
+            cornlp_netloc,  # netloc	1	Network location part	empty string
+            '/',  # path	2	Hierarchical path	empty string
+            '',  # query	3	Query component	empty string
+            '',  # fragment	4	Fragment identifier	empty string
+        ])
     if ltp:
         ltp = ltp.strip().strip('/')
         split_result = urlsplit(ltp, scheme='http', allow_fragments=False)
