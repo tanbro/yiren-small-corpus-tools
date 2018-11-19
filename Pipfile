@@ -12,6 +12,7 @@ requests = "*"
 tqdm = "*"
 nltk = "*"
 scikit-learn = "*"
+gensim = "*"
 
 [dev-packages]
 "autopep8" = "*"

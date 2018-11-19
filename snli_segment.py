@@ -41,7 +41,7 @@ def remove_cjk_whitespace(s):  # type: (str)->str
 
 def main(input_file='', output_file='', corpus_type='snli', data_format='',
          max_workers=None, flush=True,
-         cornlp='', ltp=''):
+         corenlp='', ltp=''):
     """使用 CoreNLP 令牌化 SNLI/XNLI 语料，并输出 SNLI 格式的 JSONL 语料
 
     Parameters
@@ -65,31 +65,31 @@ def main(input_file='', output_file='', corpus_type='snli', data_format='',
     flush : bool, optional
         输出结果行时是否写缓冲 (default: True)
 
-    cornlp : str, optional
-        CoreNLP Web 服务器的 <地址>[:端口]. cornlp 或者 ltp 必须提供其中一个。
+    corenlp : str, optional
+        CoreNLP Web 服务器的 <地址>[:端口]. corenlp 或者 ltp 必须提供其中一个。
 
     ltp : str, optional
-        LTP Web 服务器的 <地址>[:端口]. cornlp 或者 ltp 必须提供其中一个。
+        LTP Web 服务器的 <地址>[:端口]. corenlp 或者 ltp 必须提供其中一个。
     """
 
-    if (not cornlp and not ltp) or (cornlp and ltp):
-        print('启动参数错误: cornlp 或者 ltp 必须提供其中一个', file=sys.stderr)
+    if (not corenlp and not ltp) or (corenlp and ltp):
+        print('启动参数错误: corenlp 或者 ltp 必须提供其中一个', file=sys.stderr)
         sys.exit(1)
-    if cornlp:
-        cornlp = cornlp.strip().strip('/')
-        split_result = urlsplit(cornlp, scheme='http', allow_fragments=False)
+    if corenlp:
+        corenlp = corenlp.strip().strip('/')
+        split_result = urlsplit(corenlp, scheme='http', allow_fragments=False)
         if split_result.scheme != 'http':
-            print(f'不支持的 URL: {cornlp!r}', file=sys.stderr)
+            print(f'不支持的 URL: {corenlp!r}', file=sys.stderr)
             sys.exit(1)
         if split_result.netloc:
-            cornlp_netloc = split_result.netloc
+            corenlp_netloc = split_result.netloc
         else:
-            cornlp_netloc = split_result.path
-        if not ':' in cornlp_netloc:
-            cornlp_netloc += ':9000'
-        cornlp = urlunsplit([
+            corenlp_netloc = split_result.path
+        if not ':' in corenlp_netloc:
+            corenlp_netloc += ':9000'
+        corenlp = urlunsplit([
             split_result.scheme,  # scheme	0	URL scheme specifier	scheme parameter
-            cornlp_netloc,  # netloc	1	Network location part	empty string
+            corenlp_netloc,  # netloc	1	Network location part	empty string
             '/',  # path	2	Hierarchical path	empty string
             '',  # query	3	Query component	empty string
             '',  # fragment	4	Fragment identifier	empty string
@@ -180,8 +180,8 @@ def main(input_file='', output_file='', corpus_type='snli', data_format='',
         sent2 = remove_cjk_whitespace(sent2)
 
         segments = []
-        if cornlp:
-            parser = CoreNLPParser(cornlp)
+        if corenlp:
+            parser = CoreNLPParser(corenlp)
             for sent in (sent1, sent2):
                 tokens = list(parser.tokenize(sent))
                 segments.append(' '.join(tokens))
