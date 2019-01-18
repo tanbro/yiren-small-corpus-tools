@@ -13,11 +13,13 @@ tqdm = "*"
 nltk = "*"
 scikit-learn = "*"
 gensim = "*"
+emoji-data = "*"
+opencc = "*"
 
 [dev-packages]
-"autopep8" = "*"
 pylint = "*"
 rope = "*"
+yapf = "*"
 
 [requires]
 python_version = "3.6"
