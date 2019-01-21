@@ -230,7 +230,7 @@ def parse_args():
 def main(args):
     print('load:')
     samples = []
-    for index, line in tqdm(enumerate(args.input)):
+    for line in enumerate(args.input):
         line = line.strip()
         if not line:
             continue
