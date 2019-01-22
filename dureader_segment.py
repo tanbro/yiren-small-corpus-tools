@@ -21,6 +21,7 @@ import sys
 from concurrent.futures import (ProcessPoolExecutor, ThreadPoolExecutor,
                                 as_completed)
 
+import nltk
 import requests
 from emoji_data import EmojiData
 from nltk.parse.corenlp import CoreNLPParser
@@ -57,7 +58,10 @@ def pre_segment(s):
 
 
 def segment_one(url, s):
-    parser = CoreNLPParser(url, tagtype='pos')
+    if nltk.__version__ < '3.4':
+        parser = CoreNLPParser(url)
+    else:
+        parser = CoreNLPParser(url, tagtype='pos')
     return list(parser.tokenize(pre_segment(s)))
 
 
@@ -70,11 +74,13 @@ def segment_many(url, ss):
 
 def proc_sample(url, sample_text):
     sample_data = json.loads(sample_text)
-    sample_data['segmented_question'] = segment_one(url,
-                                                    sample_data['question'])
-    sample_data['segmented_answers'] = segment_many(url,
-                                                    sample_data['answers'])
-    for document in sample_data['documents']:
+    question = sample_data.get('question')
+    if question:
+        sample_data['segmented_question'] = segment_one(url, question)
+    answers = sample_data.get('answers')
+    if answers:
+        sample_data['segmented_answers'] = segment_many(url, answers)
+    for document in sample_data.get('documents', []):
         document['segmented_title'] = segment_one(url, document['title'])
         document['segmented_paragraphs'] = segment_many(
             url, document['paragraphs'])
