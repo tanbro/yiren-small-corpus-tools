@@ -5,6 +5,8 @@
 see: https://github.com/baidu/DuReader
 
 改造百度官方的预处理程序
+
+注意这个工具会打乱语料的顺序，除非并发数限制为 1
 """
 
 import argparse
