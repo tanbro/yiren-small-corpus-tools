@@ -47,10 +47,9 @@ def main(args):
     """
     vocab = {}
     for fno, fp in tqdm(
-            enumerate(args.inputs, start=1),
-            desc='Read input files',
-            total=len(args.inputs)):
-        for line in tqdm(fp, desc='Load vocab from file[{}]'.format(fno)):
+            enumerate(args.inputs, start=1), total=len(args.inputs)):
+        tqdm.write('Load vocab from file[{}]:'.format(fno))
+        for line in tqdm(fp):
             obj = json.loads(line.strip())
             paras = [
                 chain(*d['segmented_paragraphs']) for d in obj['documents']
@@ -65,7 +64,8 @@ def main(args):
     sorted_vocab = sorted([(v, c) for v, c in vocab.items()],
                           key=lambda x: x[1],
                           reverse=True)
-    for w, c in tqdm(sorted_vocab, desc='Write output file'):
+    tqdm.write('Write output file:')
+    for w, c in tqdm(sorted_vocab):
         print('{}\t{}'.format(w, c), file=args.output)
 
 
