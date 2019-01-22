@@ -66,7 +66,10 @@ def segment_one(url, s):
 
 
 def segment_many(url, ss):
-    parser = CoreNLPParser(url, tagtype='pos')
+    if nltk.__version__ < '3.4':
+        parser = CoreNLPParser(url)
+    else:
+        parser = CoreNLPParser(url, tagtype='pos')
     return [
         list(t) for t in parser.tokenize_sents([pre_segment(s) for s in ss])
     ]
