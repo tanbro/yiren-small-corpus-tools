@@ -248,6 +248,8 @@ def main(args):
             for sample in tqdm(samples)
         ]
 
+        samples = []  # release
+
         print('wait:')
         for fut in tqdm(as_completed(fut_list), total=len(fut_list)):
             txt = json.dumps(fut.result(), ensure_ascii=False)
